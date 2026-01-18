@@ -9,6 +9,7 @@ import (
 
 type Config struct {
 	Postgres PostgresConfig
+	S3 S3Config
 }
 
 type PostgresConfig struct {
@@ -19,6 +20,16 @@ type PostgresConfig struct {
 	Port      string
 	OutputDir string
 }
+
+type S3Config struct {
+	Url string
+	BacketName string
+	AccessKey string
+	SecretAccessKey string
+	Region string
+}
+//  TODO: add here a method whuch will form connection url
+
 
 // Reads .toml config file
 func ReadCfgFile() (*Config, error) {
