@@ -7,5 +7,5 @@ import "time"
 // Returns current date time in RFC3339 fomat
 func CurrentDateTimeRFC3339() string {
 	now := time.Now()
-   	return now.Format(time.RFC3339)
+	return now.Format(time.RFC3339)
 }

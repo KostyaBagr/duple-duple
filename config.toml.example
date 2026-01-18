@@ -1,0 +1,14 @@
+[postgres]
+host="127.0.0.1"
+user="postgres"
+password="postgres"
+db="*"
+port="5432"
+outputDir="/mnt/backup"
+
+[s3]
+url=""
+backetName=""
+accessKey=""
+secretAccessKey=""
+region=""
