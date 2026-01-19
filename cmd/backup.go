@@ -6,6 +6,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"github.com/KostyaBagr/duple-duple/internal/backup"
+	cfg "github.com/KostyaBagr/duple-duple/internal/config" 
 )
 
 var dbms string
@@ -17,12 +18,12 @@ var backupCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		if dbms == "postgres" {
 			backup.PostgresDump(
-				appConfig.Postgres.Host, 
-				appConfig.Postgres.User, 
-				appConfig.Postgres.Password, 
-				appConfig.Postgres.DB, 
-				appConfig.Postgres.OutputDir, 
-				appConfig.Postgres.Port,
+				cfg.AppConfig.Postgres.Host, 
+				cfg.AppConfig.Postgres.User, 
+				cfg.AppConfig.Postgres.Password, 
+				cfg.AppConfig.Postgres.DB, 
+				cfg.AppConfig.Postgres.OutputDir, 
+				cfg.AppConfig.Postgres.Port,
 			)
 		}
 	},

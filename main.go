@@ -25,15 +25,15 @@ func setLoggingCfg() {
 
 }
 
+// TODO: fix logs. Now they do not work properly
+
 func main() {
 	setLoggingCfg()
 
-	cfg, err := config.ReadCfgFile()
-	if err != nil {
-		log.Fatal(err)
+	if err := config.ReadCfgFile(); err != nil {
+		log.Println(err)
+		os.Exit(1)
 	}
-
-	cmd.InitConfig(cfg)
 	log.Println("CLI has just started")
 	cmd.Execute()
 	log.Println("CLI has just shutted down")

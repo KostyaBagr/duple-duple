@@ -1,15 +1,16 @@
 package config
 
 import (
-	"errors"
+	"fmt"
 	"os"
 
 	"github.com/BurntSushi/toml"
+	"github.com/go-playground/validator/v10"
 )
 
 type Config struct {
 	Postgres PostgresConfig
-	S3 S3Config
+	S3       S3Config
 }
 
 type PostgresConfig struct {
@@ -22,26 +23,40 @@ type PostgresConfig struct {
 }
 
 type S3Config struct {
-	Url string
-	BacketName string
-	AccessKey string
-	SecretAccessKey string
-	Region string
+	Url             string `validate:"required"`
+	BacketName      string `validate:"required"`
+	AccessKey       string `validate:"required"`
+	SecretAccessKey string `validate:"required"`
+	Region          string `validate:"required"`
+	PathInBucket    string
 }
+
 //  TODO: add here a method whuch will form connection url
 
+var AppConfig *Config
 
 // Reads .toml config file
-func ReadCfgFile() (*Config, error) {
+func ReadCfgFile() error {
+	validate := validator.New()
 	f := "config.toml"
+
 	if _, err := os.Stat(f); err != nil {
-		return nil, errors.New("No config file")
-	}
-	var cfg Config
-	_, err := toml.DecodeFile(f, &cfg)
-	if err != nil {
-		return nil, errors.New("Fail to decode")
+		return fmt.Errorf("config validation failed: %w", err)
+
 	}
 
-	return &cfg, nil
+	var cfg Config
+
+	_, err := toml.DecodeFile(f, &cfg)
+	if err != nil {
+		return fmt.Errorf("config validation failed: %w", err)
+	}
+
+	err = validate.Struct(cfg)
+	if err != nil {
+		return fmt.Errorf("config validation failed: %w", err)
+	}
+
+	AppConfig = &cfg
+	return nil
 }
