@@ -41,3 +41,4 @@ func ConvertFileToBytes(filePath string) ([]byte, error) {
 	return bfile, nil
 
 }
+

@@ -1,15 +1,14 @@
 package backup
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
 	"os/exec"
 
 	"github.com/KostyaBagr/duple-duple/internal"
-	app "github.com/KostyaBagr/duple-duple/internal/config"
-	"github.com/KostyaBagr/duple-duple/internal/storage/s3"
+	cfg "github.com/KostyaBagr/duple-duple/internal/config"
+	st "github.com/KostyaBagr/duple-duple/internal/storage"
 )
 
 // generate a name for dump. It takes datetime + zipped extension
@@ -26,9 +25,9 @@ func dumpFileName(archive bool) string {
 // host - localhost or IP address
 // user - db user
 // table - table name (in this case we use pg_dump) OR * (in this case we use pg_dump_all)
-// outputDir - dir to save dumps
+// storage - a type of storage to keep your backups
 // port - 5432 is a default value
-func PostgresDump(host, user, password, db, outputDir, port string) {
+func PostgresDump(host, user, password, db, storage, port string) {
 	var isCluster bool
 	var cmd *exec.Cmd
 
@@ -39,7 +38,8 @@ func PostgresDump(host, user, password, db, outputDir, port string) {
 	}
 
 	fileName := dumpFileName(isCluster)
-	fullPath := outputDir + fileName
+
+	fullPath := cfg.AppConfig.Postgres.OutputDir + fileName
 	if isCluster == false {
 		cmd = exec.Command(
 			"bash", "-c",
@@ -68,28 +68,26 @@ func PostgresDump(host, user, password, db, outputDir, port string) {
 		)
 		return
 	}
+	
 	log.Printf("Created dump %s", fileName)
-	// TODO: replace this S3 init function to common module
-	s, err := s3.NewS3Storage()
-	if err != nil {
-		log.Printf("Error during init s3 %v", err)
-		return
-	}
-	ctx := context.Background()
 	dumpBytes, err := internal.ConvertFileToBytes(fullPath)
-	log.Println("File was converted to bytes")
 	if err != nil {
-		log.Print(err)
+		log.Println(err)
 		return
 	}
-	if app.AppConfig.S3.PathInBucket != "" {
-		fileName = app.AppConfig.S3.PathInBucket + fileName
-	}
-	if err = s.UploadLargeObject(ctx, app.AppConfig.S3.BacketName, fileName, dumpBytes); err != nil {
-		log.Print(err)
+
+	err = st.StorageDispatcher("s3", fileName, dumpBytes)
+	if err != nil {
+		log.Println(err)
+		fmt.Printf("Invalid type of storage %v", storage)
 		return
-	} else {
-		log.Println("File was successfuly upload to S3")
 	}
+
+	err = os.Remove(fullPath)
+	if err != nil {
+		fmt.Println("Error deleting file:", err)
+		return
+	}
+	fmt.Println("Postgres dump was successfully uploaded!")
 
 }

@@ -14,12 +14,12 @@ type Config struct {
 }
 
 type PostgresConfig struct {
-	Host      string
-	User      string
-	Password  string
-	DB        string
-	Port      string
-	OutputDir string
+	Host      string `validate:"required"`
+	User      string `validate:"required"`
+	Password  string `validate:"required"`
+	DB        string `validate:"required"`
+	Port      string `validate:"required"`
+	OutputDir string `default:"/tmp/duple-duple/postgres/"` // Now it does not work
 }
 
 type S3Config struct {
@@ -31,9 +31,8 @@ type S3Config struct {
 	PathInBucket    string
 }
 
-//  TODO: add here a method whuch will form connection url
-
 var AppConfig *Config
+
 
 // Reads .toml config file
 func ReadCfgFile() error {
@@ -46,7 +45,6 @@ func ReadCfgFile() error {
 	}
 
 	var cfg Config
-
 	_, err := toml.DecodeFile(f, &cfg)
 	if err != nil {
 		return fmt.Errorf("config validation failed: %w", err)
