@@ -19,7 +19,7 @@ var backupCmd = &cobra.Command{
 	Long:  "TODO: change it!",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		if dbms == "postgres" {
+		if dbms == cfg.Postgres.String() {
 			backup.PostgresDump(
 				cfg.AppConfig.Postgres.Host,
 				cfg.AppConfig.Postgres.User,
@@ -39,6 +39,7 @@ func init() {
 		return
 	}
 
+	// TODO: add an ability to specify multiple storages
 	backupCmd.Flags().StringVar(&storage, "storage", "", "Storage type to keep your dump")
 	if err := backupCmd.MarkFlagRequired("storage"); err != nil {
 		return

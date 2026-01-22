@@ -23,19 +23,19 @@ type S3Storage struct {
 // Creates an instance of s3
 func NewS3Storage() (*S3Storage, error) {
 	cfg, err := config.LoadDefaultConfig(context.Background(),
-		config.WithRegion(app.AppConfig.S3.Region),
+		config.WithRegion(app.AppConfig.Storage.S3.Region),
 	)
 	if err != nil {
 		return nil, err
 	}
 
 	client := s3.NewFromConfig(cfg, func(o *s3.Options) {
-		o.BaseEndpoint = &app.AppConfig.S3.Url
+		o.BaseEndpoint = &app.AppConfig.Storage.S3.Url
 		o.UsePathStyle = true
 		o.Credentials = aws.NewCredentialsCache(
 			credentials.NewStaticCredentialsProvider(
-				app.AppConfig.S3.AccessKey,
-				app.AppConfig.S3.SecretAccessKey,
+				app.AppConfig.Storage.S3.AccessKey,
+				app.AppConfig.Storage.S3.SecretAccessKey,
 				"",
 			),
 		)

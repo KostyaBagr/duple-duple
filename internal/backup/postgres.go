@@ -6,20 +6,24 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/KostyaBagr/duple-duple/internal"
-	cfg "github.com/KostyaBagr/duple-duple/internal/config"
+	
 	st "github.com/KostyaBagr/duple-duple/internal/storage"
+	"github.com/KostyaBagr/duple-duple/internal/utils"
 )
 
+var tmpDirPostgres = "/tmp/duple-duple/postgres"
+var IslocalStorage bool
+
 // generate a name for dump. It takes datetime + zipped extension
-func dumpFileName(archive bool) string {
-	dateTime := internal.CurrentDateTimeRFC3339()
+func dumpPostgresFileName(archive bool) string {
+	dateTime := utils.CurrentDateTimeRFC3339()
 	ext := ".gz"
 	if archive {
 		ext = ".tar.gz"
 	}
 	return dateTime + ext
 }
+
 
 // Creates a postgres dump
 // host - localhost or IP address
@@ -37,9 +41,10 @@ func PostgresDump(host, user, password, db, storage, port string) {
 		isCluster = false
 	}
 
-	fileName := dumpFileName(isCluster)
+	fileName := dumpPostgresFileName(isCluster)
 
-	fullPath := cfg.AppConfig.Postgres.OutputDir + fileName
+	fullPath, err := dumpFullPath(fileName)
+
 	if isCluster == false {
 		cmd = exec.Command(
 			"bash", "-c",
@@ -57,9 +62,10 @@ func PostgresDump(host, user, password, db, storage, port string) {
 			),
 		)
 	}
+
 	cmd.Env = append(os.Environ(), "PGPASSWORD="+password)
 	cmd.Stderr = os.Stderr
-	err := cmd.Run()
+	err = cmd.Run()
 
 	if err != nil {
 		log.Printf(
@@ -68,26 +74,11 @@ func PostgresDump(host, user, password, db, storage, port string) {
 		)
 		return
 	}
-	
-	log.Printf("Created dump %s", fileName)
-	dumpBytes, err := internal.ConvertFileToBytes(fullPath)
-	if err != nil {
-		log.Println(err)
-		return
-	}
 
-	err = st.StorageDispatcher("s3", fileName, dumpBytes)
+	err = st.StorageDispatcher(fullPath)
 	if err != nil {
-		log.Println(err)
 		fmt.Printf("Invalid type of storage %v", storage)
 		return
 	}
-
-	err = os.Remove(fullPath)
-	if err != nil {
-		fmt.Println("Error deleting file:", err)
-		return
-	}
-	fmt.Println("Postgres dump was successfully uploaded!")
 
 }

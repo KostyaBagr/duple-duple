@@ -4,37 +4,19 @@ Copyright © 2026 Bagrov Konstantin
 package main
 
 import (
-	"log"
+	"fmt"
 	"os"
 
 	"github.com/KostyaBagr/duple-duple/cmd"
 	"github.com/KostyaBagr/duple-duple/internal/config"
 )
 
-// Sets logging config
-func setLoggingCfg() {
-	LOG_FILE := "/var/log/duple-duple.log"
-	logFile, err := os.OpenFile(LOG_FILE, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
-	if err != nil {
-		log.Panic(err)
-	}
-	defer logFile.Close()
-	log.SetOutput(logFile)
-
-	log.SetFlags(log.Lshortfile | log.LstdFlags)
-
-}
-
-// TODO: fix logs. Now they do not work properly
-
 func main() {
-	setLoggingCfg()
-
 	if err := config.ReadCfgFile(); err != nil {
-		log.Println(err)
+		fmt.Println(err)
 		os.Exit(1)
 	}
-	log.Println("CLI has just started")
+	fmt.Println("CLI has just started")
 	cmd.Execute()
-	log.Println("CLI has just shutted down")
+	fmt.Println("CLI has just shutted down")
 }

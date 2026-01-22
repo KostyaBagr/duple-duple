@@ -1,14 +1,19 @@
 [postgres]
-host="127.0.0.1"
-user="postgres"
-password="postgres"
-db="*"
-port="5432"
+host=""
+user=""
+password=""
+db=""
+port=""
 
-[s3]
+
+[storage]
+[storage.s3]
 url=""
 backetName=""
 accessKey=""
 secretAccessKey=""
 region=""
-pathInBucket=""
+pathInBucket="/test/"
+
+[storage.local]
+path=""
