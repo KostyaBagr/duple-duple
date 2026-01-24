@@ -46,26 +46,26 @@ func ConvertFileToBytes(filePath string) ([]byte, error) {
 }
 
 // Checks that object is not nil
-func IsEmpty(object interface{}) (bool, error) {
+func IsEmpty(object interface{}) bool {
 
 	switch object {
 	case nil:
-		return true, nil
+		return true
 	case "":
-		return true, nil
+		return true
 	case false:
-		return true, nil
+		return true
 	}
 
 	if reflect.ValueOf(object).Kind() == reflect.Struct {
 		empty := reflect.New(reflect.TypeOf(object)).Elem().Interface()
 		if reflect.DeepEqual(object, empty) {
-			return true, nil
+			return true
 		} else {
-			return false, nil
+			return false
 		}
 	}
-	return false, errors.New("Check not implementend for this struct")
+	return false
 }
 
 // TODO: fix it. Now it can only create a dir
@@ -76,6 +76,7 @@ func PathExists(path string, create bool) (bool, error) {
 		if create {
 			if err := os.MkdirAll(path, os.ModePerm); err != nil {
 				fmt.Println(err)
+				return false, err
 			}
 			return true, nil
 		}

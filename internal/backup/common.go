@@ -9,18 +9,19 @@ import (
 
 // Generates full path. It local type of storage was selected all dump files will be uploaded
 // there and will not be deleted. Instead in tmpDirPostres
-
-func dumpFullPath(fileName string) (path string, err error) {
+func dumpFullPath(fileName string) (path string) {
 	localStoragePath := cfg.AppConfig.Storage.Local.Path
 
-	isLocalCfgEmpty, err := utils.IsEmpty(localStoragePath)
-	if err != nil {
-		return "", fmt.Errorf("reading storage config: %w", err)
-	}
-
+	isLocalCfgEmpty := utils.IsEmpty(localStoragePath)
 	if !isLocalCfgEmpty {
-		return localStoragePath + "/" + fileName, nil
+		_, err := utils.PathExists(localStoragePath, true)
+		if err != nil {
+			fmt.Println(err)
+			return ""
+		}
+		return localStoragePath + fileName
+		
 	}
 
-	return cfg.TmpBackupPath + "/" + fileName, nil
+	return cfg.TmpBackupPath + fileName
 }

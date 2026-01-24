@@ -4,13 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 	"github.com/KostyaBagr/duple-duple/internal/utils"
 	"github.com/go-playground/validator/v10"
 )
 
-const TmpBackupPath = "/tmp/duple-duple/backup" // temporary path for dumps
+const TmpBackupPath = "/tmp/duple-duple/backup/" // temporary path for dumps
 
 // TODO: add config for notifications
 // Type of storage. For version 1 it is s3 (implemented) and googleDrive (not implemented)
@@ -81,7 +82,6 @@ type StorageConfig struct {
 }
 
 var AppConfig *Config
-var SelectedStorages *[]string
 
 // Reads .toml config file
 func ReadCfgFile() error {
@@ -120,32 +120,18 @@ func ReadCfgFile() error {
 
 // Validates toml config file
 func validateConfigSchema() error {
-	var selectedStorage []string
 
-
-	s3CfgEmpty, _ := utils.IsEmpty(AppConfig.Storage.S3)
-	localCfgEmpty, _ := utils.IsEmpty(AppConfig.Storage.Local)
+	s3CfgEmpty := utils.IsEmpty(AppConfig.Storage.S3)
+	localCfgEmpty:= utils.IsEmpty(AppConfig.Storage.Local)
 
 	if s3CfgEmpty == true && localCfgEmpty == true {
 		return errors.New("Storage config was not provided")
 	}
-
-	if !s3CfgEmpty {
-		selectedStorage = append(selectedStorage, S3.String())
+	if AppConfig.Storage.S3.PathInBucket != "" && !strings.HasSuffix(AppConfig.Storage.S3.PathInBucket, "/") {
+		return  errors.New("Provide slash for the backet name")
 	}
-
-	if !localCfgEmpty {
-		isPath, err := utils.PathExists(AppConfig.Storage.Local.Path, false)
-		if err != nil {
-			return errors.New("error during checking the path")
-		}
-		if !isPath {
-			return errors.New("incorrect path for local storage")
-		}
-		selectedStorage = append(selectedStorage, Local.String())
+	if AppConfig.Storage.Local.Path != "" && !strings.HasSuffix(AppConfig.Storage.Local.Path, "/") {
+		return  errors.New("Provide slash for the local dir to save")
 	}
-
-	SelectedStorages = &selectedStorage
-
 	return nil
 }

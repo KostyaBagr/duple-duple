@@ -2,16 +2,13 @@ package backup
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 
-	
 	st "github.com/KostyaBagr/duple-duple/internal/storage"
 	"github.com/KostyaBagr/duple-duple/internal/utils"
 )
 
-var tmpDirPostgres = "/tmp/duple-duple/postgres"
 var IslocalStorage bool
 
 // generate a name for dump. It takes datetime + zipped extension
@@ -24,14 +21,13 @@ func dumpPostgresFileName(archive bool) string {
 	return dateTime + ext
 }
 
-
 // Creates a postgres dump
 // host - localhost or IP address
 // user - db user
 // table - table name (in this case we use pg_dump) OR * (in this case we use pg_dump_all)
-// storage - a type of storage to keep your backups
 // port - 5432 is a default value
-func PostgresDump(host, user, password, db, storage, port string) {
+// storageTypes - slice of selected storages
+func PostgresDump(host, user, password, db, port string, storageTypes []string) {
 	var isCluster bool
 	var cmd *exec.Cmd
 
@@ -43,7 +39,7 @@ func PostgresDump(host, user, password, db, storage, port string) {
 
 	fileName := dumpPostgresFileName(isCluster)
 
-	fullPath, err := dumpFullPath(fileName)
+	fullPath := dumpFullPath(fileName)
 
 	if isCluster == false {
 		cmd = exec.Command(
@@ -65,19 +61,19 @@ func PostgresDump(host, user, password, db, storage, port string) {
 
 	cmd.Env = append(os.Environ(), "PGPASSWORD="+password)
 	cmd.Stderr = os.Stderr
-	err = cmd.Run()
+	err := cmd.Run()
 
 	if err != nil {
-		log.Printf(
+		fmt.Printf(
 			"pg_dump failed: %v\n",
 			err,
 		)
 		return
 	}
 
-	err = st.StorageDispatcher(fullPath)
+	err = st.StorageDispatcher(fullPath, storageTypes)
 	if err != nil {
-		fmt.Printf("Invalid type of storage %v", storage)
+		fmt.Printf("Error in StorageDispatcher %v", err)
 		return
 	}
 

@@ -17,6 +17,7 @@ import (
 // Initilizes context for S3, processes name and calls s3 client
 // for uploading large files in stream
 func s3LoaderDispatcher(filePath string) error {
+	fmt.Println("here")
 	dumpBytes, err := utils.ConvertFileToBytes(filePath)
 	if err != nil {
 		log.Printf("Can't dump file to bytes %v", err)
@@ -55,17 +56,18 @@ func s3LoaderDispatcher(filePath string) error {
 }
 
 // based on storageType calls function for storage processing
-func StorageDispatcher(filePath string) error {
+func StorageDispatcher(filePath string, storageTypes []string) error {
 	// When new methods will be added, call functions via gorutines
 
-	for _, storageType := range *cfg.SelectedStorages {
+	for _, storageType := range storageTypes {
 
 		if storageType == cfg.S3.String() {
 			s3LoaderDispatcher(filePath)
 		}
 	}
 
-	if !slices.Contains(*cfg.SelectedStorages, cfg.Local.String()) {
+	// if a local type of storage was not provided by user delete it beacause it was a temporary file
+	if !slices.Contains(storageTypes, cfg.Local.String()) {
 		err := os.Remove(filePath)
 		if err != nil {
 			fmt.Println("Error deleting file:", err)
