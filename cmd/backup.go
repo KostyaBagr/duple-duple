@@ -24,7 +24,7 @@ var backupCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		possibleStorages := []string{
 			cfg.Local.String(),
-			cfg.Postgres.String(),
+			cfg.S3.String(),
 			cfg.GoogleDrive.String(),
 		}
 		if !slices.Contains(possibleStorages, storage) {

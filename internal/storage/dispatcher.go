@@ -10,6 +10,7 @@ import (
 	"slices"
 
 	cfg "github.com/KostyaBagr/duple-duple/internal/config"
+	"github.com/KostyaBagr/duple-duple/internal/notifications"
 	s3 "github.com/KostyaBagr/duple-duple/internal/storage/s3"
 	"github.com/KostyaBagr/duple-duple/internal/utils"
 )
@@ -17,7 +18,6 @@ import (
 // Initilizes context for S3, processes name and calls s3 client
 // for uploading large files in stream
 func s3LoaderDispatcher(filePath string) error {
-	fmt.Println("here")
 	dumpBytes, err := utils.ConvertFileToBytes(filePath)
 	if err != nil {
 		log.Printf("Can't dump file to bytes %v", err)
@@ -58,7 +58,6 @@ func s3LoaderDispatcher(filePath string) error {
 // based on storageType calls function for storage processing
 func StorageDispatcher(filePath string, storageTypes []string) error {
 	// When new methods will be added, call functions via gorutines
-
 	for _, storageType := range storageTypes {
 
 		if storageType == cfg.S3.String() {
@@ -75,5 +74,10 @@ func StorageDispatcher(filePath string, storageTypes []string) error {
 		}
 		fmt.Printf("%s was deleted as temporary file\n", filePath)
 	}
+	notifications.NotificationDispather(
+		cfg.AppConfig.Notifications.Email.Sender,
+		"Created dump",
+		"Created dump",
+	)
 	return nil
 }

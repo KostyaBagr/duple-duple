@@ -9,10 +9,10 @@ import (
 
 	app "github.com/KostyaBagr/duple-duple/internal/config"
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/smithy-go"
 )
 
@@ -55,7 +55,6 @@ func (s *S3Storage) UploadLargeObject(
 ) error {
 	largeBuffer := bytes.NewReader(largeObject)
 	var partMiBs int64 = 10
-	log.Println("In s3")
 	uploader := manager.NewUploader(s.S3Client, func(u *manager.Uploader) {
 		u.PartSize = partMiBs * 1024 * 1024
 	})

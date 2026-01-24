@@ -51,8 +51,9 @@ func (dt DBMSType) String() string {
 
 // Toml config
 type Config struct {
-	Postgres PostgresConfig `validate:"required"`
-	Storage  StorageConfig  `validate:"required"`
+	Postgres      PostgresConfig `validate:"required"`
+	Storage       StorageConfig  `validate:"required"`
+	Notifications NotificationsConfig
 }
 
 type PostgresConfig struct {
@@ -79,6 +80,18 @@ type StorageLocalConfig struct {
 type StorageConfig struct {
 	S3    S3Config
 	Local StorageLocalConfig
+}
+
+type EmailNotificationsConfig struct {
+	SmtpServer string `validate:"required"`
+	Sender     string `validate:"required"`
+	Port       int    `validate:"required"`
+	Password   string `validate:"required"`
+	Receiver   string `validate:"required"`
+}
+
+type NotificationsConfig struct {
+	Email EmailNotificationsConfig
 }
 
 var AppConfig *Config
@@ -122,16 +135,16 @@ func ReadCfgFile() error {
 func validateConfigSchema() error {
 
 	s3CfgEmpty := utils.IsEmpty(AppConfig.Storage.S3)
-	localCfgEmpty:= utils.IsEmpty(AppConfig.Storage.Local)
+	localCfgEmpty := utils.IsEmpty(AppConfig.Storage.Local)
 
 	if s3CfgEmpty == true && localCfgEmpty == true {
 		return errors.New("Storage config was not provided")
 	}
 	if AppConfig.Storage.S3.PathInBucket != "" && !strings.HasSuffix(AppConfig.Storage.S3.PathInBucket, "/") {
-		return  errors.New("Provide slash for the backet name")
+		return errors.New("Provide slash for the backet name")
 	}
 	if AppConfig.Storage.Local.Path != "" && !strings.HasSuffix(AppConfig.Storage.Local.Path, "/") {
-		return  errors.New("Provide slash for the local dir to save")
+		return errors.New("Provide slash for the local dir to save")
 	}
 	return nil
 }
