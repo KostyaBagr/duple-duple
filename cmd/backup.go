@@ -10,6 +10,9 @@ import (
 
 	"github.com/KostyaBagr/duple-duple/internal/backup"
 	cfg "github.com/KostyaBagr/duple-duple/internal/config"
+	"github.com/KostyaBagr/duple-duple/internal/notifications"
+	st "github.com/KostyaBagr/duple-duple/internal/storage"
+	"github.com/KostyaBagr/duple-duple/internal/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -27,30 +30,44 @@ var backupCmd = &cobra.Command{
 			cfg.S3.String(),
 			cfg.GoogleDrive.String(),
 		}
-		if !slices.Contains(possibleStorages, storage) {
+
+		storageTypes := strings.Split(storage, ",")
+
+		if !utils.SliceIsSubSlice(possibleStorages, storageTypes) {
 			return fmt.Errorf(
 				"Invalid storage type was provided, please choose %s",
 				possibleStorages,
 			)
 		}
+
 		possibleDBMS := []string{
 			cfg.Postgres.String(),
 		}
+
 		if !slices.Contains(possibleDBMS, dbms) {
 			return fmt.Errorf("Invalid DBMS was provided, please choose %s", possibleDBMS)
 		}
 
-		storageTypes := strings.Split(storage, "/")
-		if dbms == cfg.Postgres.String() {
-			backup.PostgresDump(
-				cfg.AppConfig.Postgres.Host,
-				cfg.AppConfig.Postgres.User,
-				cfg.AppConfig.Postgres.Password,
-				cfg.AppConfig.Postgres.DB,
-				cfg.AppConfig.Postgres.Port,
-				storageTypes,
-			)
+		dumpStat, path, err := backup.DumpDispatcher(dbms)
+
+		if err != nil {
+			fmt.Printf("Error in DBMS dispatcher %v")
+			return err
 		}
+
+		dumpStat.Storages = storageTypes
+		err = st.StorageDispatcher(path, storageTypes)
+
+		if err != nil {
+			fmt.Printf("Error in StorageDispatcher %v", err)
+			return err
+		}
+		// send in another thread for future
+		notifications.NotificationDumpDispatcher(
+			cfg.AppConfig.Notifications.Email.Receiver,
+			*dumpStat,
+		)
+
 		return nil
 	},
 }

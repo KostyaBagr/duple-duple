@@ -9,6 +9,7 @@ import (
 	gomail "gopkg.in/mail.v2"
 )
 
+//  TODO: add retries if smtp server is down
 // Sends regular email in text format (TODO: add html rendering)
 func Sender(receiver, subject, body string) error {
 	message := gomail.NewMessage()
@@ -29,6 +30,6 @@ func Sender(receiver, subject, body string) error {
 		fmt.Println("Error:", err)
 		return errors.New("error during sending email")
 	}
-	fmt.Println("Email sent successfully!")
+	fmt.Printf("Email sent successfully to %s!\n", receiver)
 	return nil
 }

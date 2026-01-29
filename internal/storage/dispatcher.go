@@ -10,7 +10,6 @@ import (
 	"slices"
 
 	cfg "github.com/KostyaBagr/duple-duple/internal/config"
-	"github.com/KostyaBagr/duple-duple/internal/notifications"
 	s3 "github.com/KostyaBagr/duple-duple/internal/storage/s3"
 	"github.com/KostyaBagr/duple-duple/internal/utils"
 )
@@ -55,13 +54,18 @@ func s3LoaderDispatcher(filePath string) error {
 	}
 }
 
+// TODO: add gorutines for sending file to googleDrive and s3 
+
 // based on storageType calls function for storage processing
 func StorageDispatcher(filePath string, storageTypes []string) error {
 	// When new methods will be added, call functions via gorutines
 	for _, storageType := range storageTypes {
 
 		if storageType == cfg.S3.String() {
-			s3LoaderDispatcher(filePath)
+			err := s3LoaderDispatcher(filePath)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -74,10 +78,6 @@ func StorageDispatcher(filePath string, storageTypes []string) error {
 		}
 		fmt.Printf("%s was deleted as temporary file\n", filePath)
 	}
-	notifications.NotificationDispather(
-		cfg.AppConfig.Notifications.Email.Sender,
-		"Created dump",
-		"Created dump",
-	)
+
 	return nil
 }

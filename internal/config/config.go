@@ -140,11 +140,15 @@ func validateConfigSchema() error {
 	if s3CfgEmpty == true && localCfgEmpty == true {
 		return errors.New("Storage config was not provided")
 	}
-	if AppConfig.Storage.S3.PathInBucket != "" && !strings.HasSuffix(AppConfig.Storage.S3.PathInBucket, "/") {
-		return errors.New("Provide slash for the backet name")
+	if AppConfig.Storage.S3.PathInBucket != "" && !strings.HasSuffix(
+		AppConfig.Storage.S3.PathInBucket, "/",
+	) {
+		return errors.New("Please, provide slash for the backet name")
 	}
-	if AppConfig.Storage.Local.Path != "" && !strings.HasSuffix(AppConfig.Storage.Local.Path, "/") {
-		return errors.New("Provide slash for the local dir to save")
+	if AppConfig.Storage.Local.Path != "" && !strings.HasSuffix(
+		AppConfig.Storage.Local.Path, "/",
+	) {
+		return errors.New("Please, provide slash for the local dir to save")
 	}
 	return nil
 }

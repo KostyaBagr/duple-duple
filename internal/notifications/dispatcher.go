@@ -2,22 +2,27 @@ package notifications
 
 // Dispatches dufferent notifcations types
 import (
+	"fmt"
+
+	"github.com/KostyaBagr/duple-duple/internal/backup"
 	cfg "github.com/KostyaBagr/duple-duple/internal/config"
 	"github.com/KostyaBagr/duple-duple/internal/notifications/mail"
 	"github.com/KostyaBagr/duple-duple/internal/utils"
 )
 
-// TODO: rewriter pasta code
-func NotificationDispather(receiver, subject, body string) {
-	isNotificationCfg := utils.IsEmpty(cfg.AppConfig.Notifications)
 
-	if isNotificationCfg {
-		isEmailCfg := utils.IsEmpty(cfg.AppConfig.Notifications.Email)
+func NotificationDumpDispatcher(receiver string, dumpStats backup.DumpFileStats) {
+	isEmptyNotificationCfg := utils.IsEmpty(cfg.AppConfig.Notifications)
 
-		if isEmailCfg {
-			// TODO: add more statistics to email body (taken time, size of files, etc)
-			mail.Sender(receiver, subject, body)
+	if !isEmptyNotificationCfg {
+		isEmptyEmailCfg := utils.IsEmpty(cfg.AppConfig.Notifications.Email)
+
+		if !isEmptyEmailCfg {
+			subject := fmt.Sprintf("Your %s dump was created", dumpStats.Dbms)
+			mail.Sender(receiver, subject, dumpStats.String())
 		}
 
+	} else {
+		fmt.Println("Email config is null. If you want to send emails, please check config.toml")
 	}
 }

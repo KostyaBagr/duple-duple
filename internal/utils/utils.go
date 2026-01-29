@@ -11,6 +11,7 @@ import (
 	"os"
 	"reflect"
 	"regexp"
+	"slices"
 	"time"
 )
 
@@ -96,4 +97,23 @@ func GetFileNameFromPath(filePath string) (string, error) {
 	res := regexp.MustCompile("/").Split(filePath, -1)
 	return res[len(res)-1], nil
 
+}
+
+// Returns file size in bytes
+func FileSize(path string) (int64, error) {
+	file, err := os.Stat(path)
+	if err != nil {
+		return 0, err
+	}
+	return file.Size(), nil
+}
+
+// Checks that one slice is a subslice of another
+func SliceIsSubSlice[T comparable](mainSlice, subSlice []T) bool {
+	for _, item := range subSlice {
+		if !slices.Contains(mainSlice, item) {
+			return false
+		}
+	}
+	return true
 }
