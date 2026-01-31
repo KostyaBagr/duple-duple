@@ -36,11 +36,11 @@ func DumpDispatcher(dbms string) (*DumpFileStats, string, error) {
 
 	if dbms == cfg.Postgres.String() {
 		stat, path, err := PostgresDump(
-			cfg.AppConfig.Postgres.Host,
-			cfg.AppConfig.Postgres.User,
-			cfg.AppConfig.Postgres.Password,
-			cfg.AppConfig.Postgres.DB,
-			cfg.AppConfig.Postgres.Port,
+			cfg.AppConfig.DBMS.Postgres.Host,
+			cfg.AppConfig.DBMS.Postgres.User,
+			cfg.AppConfig.DBMS.Postgres.Password,
+			cfg.AppConfig.DBMS.Postgres.DB,
+			cfg.AppConfig.DBMS.Postgres.Port,
 		)
 		if err != nil {
 			return stat, "", errors.New("Unable to create postgres dump")

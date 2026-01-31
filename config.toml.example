@@ -1,19 +1,31 @@
-[postgres]
-host=""
-user=""
-password=""
-db=""
-port=""
+
+[dbms]
+[dbms.postgres]
+host="127.0.0.1"
+user="postgres"
+password="postgres"
+db="*"
+port="5432"
 
 
 [storage]
 [storage.s3]
-url=""
+url="
 backetName=""
 accessKey=""
 secretAccessKey=""
 region=""
-pathInBucket="/test/"
+pathInBucket=""
 
 [storage.local]
 path=""
+
+
+[notifications]
+[notifications.email]
+smtpServer=""
+sender=""
+port=
+password=""
+receiver=""
+

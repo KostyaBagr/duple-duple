@@ -51,9 +51,13 @@ func (dt DBMSType) String() string {
 
 // Toml config
 type Config struct {
-	Postgres      PostgresConfig `validate:"required"`
-	Storage       StorageConfig  `validate:"required"`
+	DBMS          DBMSConfig    `validate:"required"`
+	Storage       StorageConfig `validate:"required"`
 	Notifications NotificationsConfig
+}
+
+type DBMSConfig struct {
+	Postgres PostgresConfig `validate:"required"`
 }
 
 type PostgresConfig struct {
@@ -74,7 +78,7 @@ type S3Config struct {
 }
 
 type StorageLocalConfig struct {
-	Path string
+	Path string `validate:"required"`
 }
 
 type StorageConfig struct {
@@ -138,17 +142,17 @@ func validateConfigSchema() error {
 	localCfgEmpty := utils.IsEmpty(AppConfig.Storage.Local)
 
 	if s3CfgEmpty == true && localCfgEmpty == true {
-		return errors.New("Storage config was not provided")
+		return errors.New("storage config was not provided")
 	}
 	if AppConfig.Storage.S3.PathInBucket != "" && !strings.HasSuffix(
 		AppConfig.Storage.S3.PathInBucket, "/",
 	) {
-		return errors.New("Please, provide slash for the backet name")
+		return errors.New("please, provide slash for the backet name")
 	}
 	if AppConfig.Storage.Local.Path != "" && !strings.HasSuffix(
 		AppConfig.Storage.Local.Path, "/",
 	) {
-		return errors.New("Please, provide slash for the local dir to save")
+		return errors.New("please, provide slash for the local dir to save")
 	}
 	return nil
 }
