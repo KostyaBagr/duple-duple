@@ -37,7 +37,7 @@ type DumpDBMS interface {
 type dumpPostgres struct {
 }
 
-// Create a postgres dump methdo
+// Creates a postgres dump methdo
 func (p dumpPostgres) dump() (*DumpFileStats, string, error) {
 	stat, path, err := PostgresDump(
 		cfg.AppConfig.DBMS.Postgres.Host,
@@ -53,7 +53,7 @@ func (p dumpPostgres) dump() (*DumpFileStats, string, error) {
 	return stat, path, nil
 }
 
-// Ping method
+// Pings method
 func (p dumpPostgres) ping() error {
 	connStr := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s sslmode=disable",
